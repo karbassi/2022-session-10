@@ -5,7 +5,7 @@ const config = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 300 },
+      gravity: { y: 300, x: 0 },
       debug: true,
     },
   },
@@ -20,6 +20,12 @@ const game = new Phaser.Game(config)
 
 let platforms
 let player
+let star
+let stars
+let cursors
+let score = 0
+let scoreUI
+// let cursors_wasd
 
 function preload() {
   this.load.image('sky', 'assets/img/sky.png')
@@ -35,7 +41,7 @@ function preload() {
 
 function create() {
   this.add.image(0, 0, 'sky').setOrigin(0, 0)
-  this.add.image(400, 300, 'star')
+  // this.add.image(400, 300, 'star')
 
   // Platforms
   platforms = this.physics.add.staticGroup()
@@ -46,7 +52,7 @@ function create() {
   platforms.create(750, 220, 'ground')
 
   // Player
-  player = this.physics.add.sprite(100, 150, 'character')
+  player = this.physics.add.sprite(100, 250, 'character')
 
   player.setBounce(0.5)
   player.setCollideWorldBounds(true)
@@ -71,7 +77,78 @@ function create() {
     repeat: -1,
   })
 
-  player.anims.play('right', true)
+  player.anims.play('turn', true)
+
+  // Star
+  // star = this.physics.add.image(100, 50, 'star')
+  // star.setBounce(0.5)
+  // star.setCollideWorldBounds(true)
+
+  // Multiple Stars
+  stars = this.physics.add.group({
+    key: 'star',
+    repeat: 11,
+    setXY: {
+      x: 12,
+      y: 0,
+      stepX: 70,
+    },
+  })
+
+  stars.children.iterate(function (child) {
+    const randY = Phaser.Math.FloatBetween(0.4, 0.8)
+    child.setBounceY(randY)
+    // child.setCollideWorldBounds(true)
+  })
+
+  scoreUI = this.add.text(16, 16, 'SCORE: 0', {
+    fontSize: '32px',
+    fill: '#000',
+  })
+
+  // Collision
+  this.physics.add.collider(player, platforms)
+  this.physics.add.collider(stars, platforms)
+  // this.physics.add.collider(star, platforms)
+  // this.physics.add.collider(star, player)
+
+  this.physics.add.overlap(player, stars, collectStar)
+
+  // Keyboard
+  cursors = this.input.keyboard.createCursorKeys()
 }
 
-function update() {}
+function update() {
+  // Check if user presses arrow keys
+  // Then move, and play animation
+  if (cursors.left.isDown) {
+    player.setVelocityX(-160)
+    player.anims.play('left', true)
+  } else if (cursors.right.isDown) {
+    player.setVelocityX(160)
+    player.anims.play('right', true)
+  } else {
+    player.setVelocityX(0)
+    player.anims.play('turn', true)
+  }
+
+  if (cursors.up.isDown && player.body.touching.down) {
+    playerJumped = true
+    player.setVelocityY(-330)
+  }
+
+  // if (cursors.shift.isDown) {
+  //   star.setVelocityY(-50)
+  // }
+}
+
+function collectStar(player, star) {
+  // Delete the star the player overlaps
+  star.destroy()
+
+  // Add one to the score
+  score += 1
+
+  // Update the score UI
+  scoreUI.setText(`SCORE: ${score}`)
+}

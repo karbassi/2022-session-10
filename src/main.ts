@@ -17,4 +17,4 @@ const config = {
   scene: [PreloaderScene, LevelOneScene, LevelTwoScene],
 }
 
-const game = new Phaser.Game(config)
+new Phaser.Game(config)

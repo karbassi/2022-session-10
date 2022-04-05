@@ -1,11 +1,10 @@
 export default class LevelOneScene extends Phaser.Scene {
-  platforms
-  player
-  star
-  stars
-  cursors
-  score = 0
-  scoreUI
+  platforms!: Phaser.Physics.Arcade.StaticGroup
+  player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
+  stars!: Phaser.Physics.Arcade.Group
+  cursors!: Phaser.Types.Input.Keyboard.CursorKeys
+  score: number = 0
+  scoreUI!: Phaser.GameObjects.Text
 
   constructor() {
     super({ key: 'LevelOneScene' })
@@ -58,11 +57,6 @@ export default class LevelOneScene extends Phaser.Scene {
     })
 
     this.player.anims.play('turn', true)
-
-    // Star
-    // star = this.physics.add.image(100, 50, 'star')
-    // star.setBounce(0.5)
-    // star.setCollideWorldBounds(true)
 
     // Multiple Stars
     this.stars = this.physics.add.group({
@@ -119,16 +113,14 @@ export default class LevelOneScene extends Phaser.Scene {
     }
 
     if (this.cursors.up.isDown && this.player.body.touching.down) {
-      // playerJumped = true
       this.player.setVelocityY(-330)
     }
-
-    // if (cursors.shift.isDown) {
-    //   star.setVelocityY(-50)
-    // }
   }
 
-  collectStar(player, star) {
+  collectStar(
+    _player: Phaser.GameObjects.GameObject,
+    star: Phaser.GameObjects.GameObject,
+  ) {
     // Delete the star the player overlaps
     star.destroy()
 
